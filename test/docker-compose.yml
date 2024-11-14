@@ -7,9 +7,11 @@ services:
       - "25565:25565"
     environment:
       TYPE: "PAPER"
-      VERSION: "1.20"
+      VERSION: "1.20.6"
       EULA: "TRUE"
+      GUI: "TRUE"
 
     volumes:
       # attach the relative directory 'data' to the container's /data path
       - ./data:/data
+      - ./../build/libs/hikabrain-1.0-SNAPSHOT.jar:/data/plugins/hikabrain.jar
