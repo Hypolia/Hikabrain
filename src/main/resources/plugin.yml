@@ -1,0 +1,4 @@
+name: hikabrain
+version: '${version}'
+main: fr.zuhowks.hikabrain.Hikabrain
+api-version: '1.20'
