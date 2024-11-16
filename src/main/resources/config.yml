@@ -1,2 +1,3 @@
 party:
   setup: false
+  max-per-team: 1

@@ -18,16 +18,14 @@ import org.bukkit.inventory.ItemStack;
 import static fr.zuhowks.hikabrain.Hikabrain.prefixMessage;
 
 
-public class PlayerListener implements Listener {
+public class AdminListener implements Listener {
 
     private Hikabrain INSTANCE = Hikabrain.getINSTANCE();
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         Player p = event.getPlayer();
-        if (INSTANCE.isInSetupMod(p)) {
-            event.setCancelled(true);
-        }
+        event.setCancelled(INSTANCE.isInSetupMod(p));
     }
 
     @EventHandler
