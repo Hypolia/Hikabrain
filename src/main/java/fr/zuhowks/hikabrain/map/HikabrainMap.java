@@ -12,10 +12,11 @@ public class HikabrainMap {
 
     private final Hikabrain INSTANCE = Hikabrain.getINSTANCE();
 
-    private Location redBed;
     private Location blueBed;
-    private Location redSpawn;
+    private Location redBed;
+
     private Location blueSpawn;
+    private Location redSpawn;
 
     private List<BlockState> blockToReset;
 
