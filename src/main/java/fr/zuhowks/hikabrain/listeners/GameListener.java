@@ -7,6 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -32,6 +35,16 @@ public class GameListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         System.out.println(INSTANCE.getManager().getStatus());
         INSTANCE.getManager().join(event.getPlayer());
+        AttributeInstance instance = event.getPlayer().getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+        instance.setBaseValue(17.0D);
+    }
+
+    @EventHandler
+    public void onHungerDeplete(FoodLevelChangeEvent e) {
+        if (INSTANCE.getManager().getStatus() != GameStatus.GAME_NOT_SETUP) {
+            e.setCancelled(true);
+            e.setFoodLevel(30);
+        }
     }
 
     @EventHandler
