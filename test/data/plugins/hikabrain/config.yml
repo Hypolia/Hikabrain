@@ -1,0 +1,52 @@
+party:
+  setup: true
+  max-per-team: 1
+map:
+  blue-spawn:
+    ==: org.bukkit.Location
+    world: world
+    x: -19.5
+    y: 14.0
+    z: 0.5
+    pitch: -35.781628
+    yaw: 271.3322
+  red-spawn:
+    ==: org.bukkit.Location
+    world: world
+    x: 21.5
+    y: 14.0
+    z: 0.5
+    pitch: -38.471027
+    yaw: 88.5312
+  pos2:
+    ==: org.bukkit.Location
+    world: world
+    x: 21.0
+    y: 16.0
+    z: -5.0
+    pitch: 0.0
+    yaw: 0.0
+  pos1:
+    ==: org.bukkit.Location
+    world: world
+    x: -20.0
+    y: 0.0
+    z: 5.0
+    pitch: 0.0
+    yaw: 0.0
+  blue-bed:
+    ==: org.bukkit.Location
+    world: world
+    x: -20.0
+    y: 7.0
+    z: 0.0
+    pitch: 0.0
+    yaw: 0.0
+  red-bed:
+    ==: org.bukkit.Location
+    world: world
+    x: 21.0
+    y: 7.0
+    z: 0.0
+    pitch: 0.0
+    yaw: 0.0
