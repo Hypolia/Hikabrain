@@ -13,7 +13,7 @@ public enum HikaItem {
     SWORD(Material.IRON_SWORD, 1, "Sword", "Utilité: Taper"),
     PICKAXE(Material.IRON_PICKAXE, 1, "Axe", "Utilité: Casser"),
     GOLDEN_APPLE(Material.GOLDEN_APPLE, 64, "Caca", "Utilité: Prout"),
-    SANDSTONE(Material.SANDSTONE, 64, "Sword", "Utilité: Poser"),
+    SANDSTONE(Material.CUT_SANDSTONE, 64, "Sword", "Utilité: Poser"),
     HELMET(Material.LEATHER_HELMET, 1, "Pipi", "Utilité: T'es bête ou quoi là ?"),
     CHESTPLATE(Material.LEATHER_CHESTPLATE, 1, "Pipi", "Utilité: T'es bête ou quoi là ?"),
     LEGGINGS(Material.LEATHER_LEGGINGS, 1, "Pipi", "Utilité: T'es bête ou quoi là ?"),
