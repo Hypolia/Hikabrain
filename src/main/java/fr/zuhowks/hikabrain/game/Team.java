@@ -1,30 +1,37 @@
 package fr.zuhowks.hikabrain.game;
 
-import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public enum Team {
-    BLUE("Blue"),
-    RED("Red");
+    BLUE("Blue", ChatColor.BLUE),
+    RED("Red", ChatColor.RED),;
 
     private String name;
-    private List<Player> members;
+    private List<UUID> members;
     private int point;
+    private ChatColor color;
 
-    Team(String name) {
+    Team(String name, ChatColor color) {
         this.name = name;
         this.members = new ArrayList<>();
         this.point = 0;
+        this.color = color;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<Player> getMembers() {
+    public List<UUID> getMembers() {
         return members;
+    }
+
+    public ChatColor getColor() {
+        return color;
     }
 
     public int getPoint() {
