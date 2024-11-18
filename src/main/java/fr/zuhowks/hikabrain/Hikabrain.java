@@ -17,13 +17,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 
 public final class Hikabrain extends JavaPlugin {
 
-    public static final String prefixMessage = ChatColor.YELLOW + "" + ChatColor.BOLD +  "[" + ChatColor.AQUA + " HIKABRAIN " + ChatColor.YELLOW + "" + ChatColor.BOLD + "]" + ChatColor.RESET + " ";
-    private static Hikabrain INSTANCE;
+    public static final String prefixMessage = ChatColor.GOLD + "" + ChatColor.BOLD +  "[" + ChatColor.DARK_PURPLE + " HIKABRAIN " + ChatColor.GOLD + ChatColor.BOLD + "]" + ChatColor.RESET + " ";
+    public static Hikabrain INSTANCE;
     private FileConfiguration config;
     private final Map<UUID, ItemStack[]> inventoryRegistry = new HashMap<>(); //For setup mod
     private boolean partyIsSetup = false;
@@ -40,22 +41,26 @@ public final class Hikabrain extends JavaPlugin {
 
         this.partyIsSetup = this.config.getBoolean("party.setup");
 
+        // Load Map!!!
         this.map = new HikabrainMap();
         this.map.loadMapData();
 
+        // After load manager
+        System.out.println("ALORS ? " + this.isPartyIsSetup());
         this.manager = new HikabrainManager(this.config.getInt("party.max-per-team"));
+        System.out.println("ALORS ? " + this.getManager().getStatus());
 
         this.applyEnchantmentsOnHikaItems();
         this.setGameRules();
 
-
-        this.getCommand("ah").setExecutor(new CommandAdmin());
+        Objects.requireNonNull(this.getCommand("ah")).setExecutor(new CommandAdmin());
         getServer().getPluginManager().registerEvents(new AdminListener(), this);
         getServer().getPluginManager().registerEvents(new GameListener(), this);
     }
 
     @Override
     public void onDisable() {
+        this.map.resetMap();
         this.map.saveMapData();
     }
 
@@ -82,6 +87,10 @@ public final class Hikabrain extends JavaPlugin {
         return partyIsSetup;
     }
 
+    public void setPartyIsSetup(boolean partyIsSetup) {
+        this.partyIsSetup = partyIsSetup;
+    }
+
     public HikabrainMap getMap() {
         return map;
     }
@@ -94,6 +103,8 @@ public final class Hikabrain extends JavaPlugin {
         return INSTANCE;
     }
 
+
+
     public void applyEnchantmentsOnHikaItems() {
         Map<Enchantment, Integer> basicEnchantments = new HashMap<>();
         basicEnchantments.put(Enchantment.UNBREAKING, 999);
@@ -104,7 +115,7 @@ public final class Hikabrain extends JavaPlugin {
 
         Map<Enchantment, Integer> armorEnchantments = new HashMap<>();
         armorEnchantments.put(Enchantment.UNBREAKING, 999);
-        armorEnchantments.put(Enchantment.PROTECTION, 3);
+        armorEnchantments.put(Enchantment.PROTECTION, 2);
         HikaItem.HELMET.applyEnchantments(armorEnchantments);
         HikaItem.CHESTPLATE.applyEnchantments(armorEnchantments);
         HikaItem.LEGGINGS.applyEnchantments(armorEnchantments);
