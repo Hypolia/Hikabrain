@@ -1,8 +1,11 @@
 package fr.zuhowks.hikabrain.game;
 
-import fr.zuhowks.hikabrain.Hikabrain;
 import fr.zuhowks.hikabrain.game.items.HikaItem;
+import fr.zuhowks.hikabrain.game.player.SpawnProtectionRunnable;
 import fr.zuhowks.hikabrain.map.HikabrainMap;
+import io.papermc.paper.entity.LookAnchor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.TitlePart;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,15 +14,19 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
+
+import static fr.zuhowks.hikabrain.Hikabrain.INSTANCE;
+import static fr.zuhowks.hikabrain.Hikabrain.prefixMessage;
 
 public class HikabrainManager extends BukkitRunnable {
-    private Hikabrain INSTANCE = Hikabrain.getINSTANCE();
 
     private Team blue;
     private Team red;
     private int maxPerTeam;
 
     private GameStatus status;
+    private boolean freezePlayers = true;
 
     public HikabrainManager(int maxPerTeam) {
         this.blue = Team.BLUE;
@@ -28,9 +35,12 @@ public class HikabrainManager extends BukkitRunnable {
 
         if (INSTANCE.isPartyIsSetup()) {
             this.status = GameStatus.WAITING_PLAYER;
+            INSTANCE.getMap().saveMap();
+            System.out.println(this.status);
+        } else {
+            this.status = GameStatus.GAME_NOT_SETUP;
         }
 
-        this.status = GameStatus.GAME_NOT_SETUP;
     }
 
     public Team getBlue() {
@@ -49,6 +59,10 @@ public class HikabrainManager extends BukkitRunnable {
         return status;
     }
 
+    public boolean isNotFreezePlayers() {
+        return !freezePlayers;
+    }
+
     public void setMaxPerTeam(int maxPerTeam) {
         this.maxPerTeam = maxPerTeam;
     }
@@ -57,29 +71,42 @@ public class HikabrainManager extends BukkitRunnable {
         this.status = status;
     }
 
+    public void setFreezePlayers(boolean freezePlayers) {
+        this.freezePlayers = freezePlayers;
+    }
+
     public void join(Player player) {
         HikabrainMap map = INSTANCE.getMap();
         Location blueLoc = map.getBlueSpawn();
         Location redLoc = map.getRedSpawn();
 
+        player.getInventory().clear();
+        player.updateInventory();
+
         if (this.status == GameStatus.WAITING_PLAYER) {
+            if (this.getPlayerTeam(player.getUniqueId()) != null) return;
             if (this.blue.getMembers().size() < this.maxPerTeam) {
+
                 player.setGameMode(GameMode.SURVIVAL);
-                this.blue.getMembers().add(player);
-                player.teleport(blueLoc);
+                this.blue.getMembers().add(player.getUniqueId());
+
+                teleportPlayer(player, blueLoc, redLoc);
+
 
             } else if (this.red.getMembers().size() < this.maxPerTeam) {
+
                 player.setGameMode(GameMode.SURVIVAL);
-                this.red.getMembers().add(player);
-                player.teleport(redLoc);
+                this.red.getMembers().add(player.getUniqueId());
 
+                teleportPlayer(player, redLoc, blueLoc);
             }
 
-            if (this.red.getMembers().size() + this.blue.getMembers().size() == this.maxPerTeam * 2) {
+            if (this.red.getMembers().size() + this.blue.getMembers().size() >= this.maxPerTeam * 2) {
                 this.status = GameStatus.WAITING_FULL;
+                this.start();
             }
 
-        }  else if (this.status == GameStatus.GAME_NOT_SETUP) {
+        }  else if (this.status != GameStatus.GAME_NOT_SETUP) {
             player.setGameMode(GameMode.SPECTATOR);
             player.teleport(new Location(blueLoc.getWorld(), (blueLoc.getX()+redLoc.getX())/2, (blueLoc.getY()+redLoc.getY())/2, (blueLoc.getZ()+redLoc.getZ())/2));
         }
@@ -87,8 +114,8 @@ public class HikabrainManager extends BukkitRunnable {
 
     public void start() {
         this.status = GameStatus.IN_GAME;
-
-        setStuffAndTeleport();
+        this.setStuffAndTeleport();
+        this.beginRound();
     }
 
     public void setStuffAndTeleport() {
@@ -104,36 +131,58 @@ public class HikabrainManager extends BukkitRunnable {
         ItemStack redLeggings = this.getRedLeatherItem(HikaItem.LEGGINGS.getItemStack());
         ItemStack redBoots = this.getRedLeatherItem(HikaItem.BOOTS.getItemStack());
 
-        this.blue.getMembers().forEach(player -> {
-            player.teleport(map.getBlueSpawn());
-            PlayerInventory inv = player.getInventory();
-            setCommonInventory(inv);
+        this.blue.getMembers().forEach(uuid -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                teleportPlayer(player, map.getBlueSpawn(), map.getRedSpawn());
 
-            inv.setHelmet(blueHelmet);
-            inv.setChestplate(blueChestplate);
-            inv.setLeggings(blueLeggings);
-            inv.setBoots(blueBoots);
+                PlayerInventory inv = player.getInventory();
+                setCommonInventory(inv);
+
+                inv.setHelmet(blueHelmet);
+                inv.setChestplate(blueChestplate);
+                inv.setLeggings(blueLeggings);
+                inv.setBoots(blueBoots);
+
+                setMaxHealthTo(player);
+
+            }
+
 
         });
-        this.red.getMembers().forEach(player -> {
-            player.teleport(map.getRedSpawn());
-            PlayerInventory inv = player.getInventory();
-            setCommonInventory(inv);
+        this.red.getMembers().forEach(uuid -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                teleportPlayer(player, map.getRedSpawn(), map.getBlueSpawn());
 
-            inv.setHelmet(redHelmet);
-            inv.setChestplate(redChestplate);
-            inv.setLeggings(redLeggings);
-            inv.setBoots(redBoots);
+                PlayerInventory inv = player.getInventory();
+                setCommonInventory(inv);
+
+                inv.setHelmet(redHelmet);
+                inv.setChestplate(redChestplate);
+                inv.setLeggings(redLeggings);
+                inv.setBoots(redBoots);
+
+                setMaxHealthTo(player);
+            }
         });
     }
 
+    public static void teleportPlayer(Player player, Location loc, Location look) {
+        player.teleport(loc);
+        player.lookAt(look, LookAnchor.EYES);
+        player.lookAt(look, LookAnchor.FEET);
+    }
+
     public void respawnPlayer(Player player) {
-        Team team = this.getPlayerTeam(player);
+        Team team = this.getPlayerTeam(player.getUniqueId());
+        setMaxHealthTo(player);
         if (team != null) {
             PlayerInventory inv = player.getInventory();
             HikabrainMap map = INSTANCE.getMap();
             if (team == Team.BLUE) {
-                player.teleport(map.getBlueSpawn());
+                teleportPlayer(player, map.getBlueSpawn(), map.getRedSpawn());
+
                 ItemStack blueHelmet = this.getBlueLeatherItem(HikaItem.HELMET.getItemStack());
                 ItemStack blueChestplate = this.getBlueLeatherItem(HikaItem.CHESTPLATE.getItemStack());
                 ItemStack blueLeggings = this.getBlueLeatherItem(HikaItem.LEGGINGS.getItemStack());
@@ -144,7 +193,8 @@ public class HikabrainManager extends BukkitRunnable {
                 inv.setLeggings(blueLeggings);
                 inv.setBoots(blueBoots);
             } else {
-                player.teleport(map.getRedSpawn());
+                teleportPlayer(player, map.getRedSpawn(), map.getBlueSpawn());
+
                 ItemStack redHelmet = this.getRedLeatherItem(HikaItem.HELMET.getItemStack());
                 ItemStack redChestplate = this.getRedLeatherItem(HikaItem.CHESTPLATE.getItemStack());
                 ItemStack redLeggings = this.getRedLeatherItem(HikaItem.LEGGINGS.getItemStack());
@@ -159,6 +209,13 @@ public class HikabrainManager extends BukkitRunnable {
 
             setCommonInventory(inv);
         }
+
+        new SpawnProtectionRunnable(player).startProtection(INSTANCE);
+    }
+
+    private static void setMaxHealthTo(Player player) {
+        player.setHealth(player.getHealthScale());
+        player.sendHealthUpdate();
     }
 
     public ItemStack getBlueLeatherItem(ItemStack item) {
@@ -189,14 +246,16 @@ public class HikabrainManager extends BukkitRunnable {
         inv.setItem(6, HikaItem.SANDSTONE.getItemStack());
         inv.setItem(7, HikaItem.SANDSTONE.getItemStack());
         inv.setItem(8, HikaItem.SANDSTONE.getItemStack());
+        inv.setItemInOffHand(HikaItem.SANDSTONE.getItemStack());
     }
 
     @Nullable
-    public Team getPlayerTeam(Player player) {
+    public Team getPlayerTeam(UUID uuid) {
         for (Team team : Team.values()) {
-            for (Player _player : team.getMembers()) {
-                if (_player.getUniqueId().equals(player.getUniqueId())) {
+            for (UUID _uuid : team.getMembers()) {
+                if (_uuid.equals(uuid)) {
                     return team;
+
                 }
             }
         }
@@ -206,6 +265,72 @@ public class HikabrainManager extends BukkitRunnable {
 
     @Override
     public void run() {
+        //TODO: IMPLEMENT SCOREBOARD
         this.cancel();
+    }
+
+    public void teamScored(Player player, Team team) {
+        team.setPoint(team.getPoint() + 1);
+        INSTANCE.getMap().resetMap();
+
+        if (team.getPoint() >= 5) {
+            this.end(team);
+        } else {
+            for (Player _p : Bukkit.getOnlinePlayers()) {
+                _p.sendMessage(prefixMessage + team.getColor() + player.getName() + ChatColor.GOLD + " a marqué +1 point !");
+            }
+            this.beginRound();
+        }
+
+
+    }
+
+    public void end(Team team) {
+        this.status = GameStatus.FINISH;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.getInventory().clear();
+            p.updateInventory();
+            p.setGameMode(GameMode.SPECTATOR);
+            p.sendMessage(prefixMessage + ChatColor.GOLD + "Victoire de l'équipe " + team.getColor() + team.getName() + ChatColor.GOLD + " !");
+        }
+    }
+
+    public void beginRound() {
+        this.freezePlayers = true;
+        this.setStuffAndTeleport();
+
+        INSTANCE.getMap().setBlueBlockSpawn();
+        INSTANCE.getMap().setRedBlockSpawn();
+
+        announceRound();
+    }
+
+    private void announceRound() {
+        new BukkitRunnable() {
+
+            int countdown = 5;
+
+            @Override
+            public void run() {
+
+                if (countdown <= 0) {
+                    INSTANCE.getManager().setFreezePlayers(false);
+                    INSTANCE.getMap().removeBlueBlockSpawn();
+                    INSTANCE.getMap().removeRedBlockSpawn();
+                    for (Player _p : Bukkit.getOnlinePlayers()) {
+                        _p.clearTitle();
+                    }
+
+                    this.cancel();
+                } else {
+                    for (Player _p : Bukkit.getOnlinePlayers()) {
+                        _p.sendTitlePart(TitlePart.TITLE, Component.text(ChatColor.GOLD + String.valueOf(countdown)));
+                    }
+                    countdown--;
+                }
+
+            }
+
+        }.runTaskTimer(INSTANCE, 0L, 20L);
     }
 }
