@@ -9,9 +9,10 @@ import java.util.Arrays;
 
 public enum SetupModItems {
     SETUP_BLUE_SPAWN(Material.BLUE_WOOL, "§6§lSET §9§lBLUE SPAWN", "ah setspawn blue",  ChatColor.GRAY + "/ah setspawn blue -> To set the blue team's spawn point.", ChatColor.GRAY + "(Put the block)"),
-    SETUP_BLUE_BED(Material.BLUE_BED, "§6§lSETUP §9§lBLUE BED", "ah setupbed blue",  ChatColor.GRAY + "/ah setbed blue -> To setup the blue team's bed location.", ChatColor.GRAY + "(Put the bed)"),
-    SETUP_RED_SPAWN(Material.RED_WOOL, "§6§lSET §4§lRED SPAWN", "ah setupspawn red",  ChatColor.GRAY + "/ah setspawn red -> To set the red team's spawn point.", ChatColor.GRAY + "(Put the block)"),
-    SETUP_RED_BED(Material.RED_BED, "§6§lSETUP §4§lRED BED", "ah setupbed red",  ChatColor.GRAY + "/ah setbed red -> To setup the red team's bed location.", ChatColor.GRAY + "(Put the bed)"),
+    SETUP_BLUE_BED(Material.BLUE_BED, "§6§lSETUP §9§lBLUE BED", "ah setbed blue",  ChatColor.GRAY + "/ah setbed blue -> To setup the blue team's bed location.", ChatColor.GRAY + "(Put the bed)"),
+    SETUP_RED_SPAWN(Material.RED_WOOL, "§6§lSET §4§lRED SPAWN", "ah setspawn red",  ChatColor.GRAY + "/ah setspawn red -> To set the red team's spawn point.", ChatColor.GRAY + "(Put the block)"),
+    SETUP_RED_BED(Material.RED_BED, "§6§lSETUP §4§lRED BED", "ah setbed red",  ChatColor.GRAY + "/ah setbed red -> To setup the red team's bed location.", ChatColor.GRAY + "(Put the bed)"),
+    SET_MAP_POS(Material.STICK, "§e§lSET MAP POSITION", null, ChatColor.GRAY + "- Right click on block to set position 1", ChatColor.GRAY + "- Left click on block to set position 2"),
     ;
 
     private final ItemStack itemStack;
