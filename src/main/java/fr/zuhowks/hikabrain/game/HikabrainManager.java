@@ -113,6 +113,10 @@ public class HikabrainManager extends BukkitRunnable {
     }
 
     public void start() {
+        for (Team team : Team.values()) {
+            team.setPoint(0);
+        }
+
         this.status = GameStatus.IN_GAME;
         this.setStuffAndTeleport();
         this.beginRound();
@@ -319,6 +323,7 @@ public class HikabrainManager extends BukkitRunnable {
                     INSTANCE.getMap().removeRedBlockSpawn();
                     for (Player _p : Bukkit.getOnlinePlayers()) {
                         _p.clearTitle();
+                        (new SpawnProtectionRunnable(_p)).startProtection(INSTANCE);
                     }
 
                     this.cancel();
