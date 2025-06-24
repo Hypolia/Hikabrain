@@ -1,0 +1,18 @@
+name: mc-spigot-server
+services:
+  mc:
+    image: itzg/minecraft-server
+    tty: true
+    stdin_open: true
+    ports:
+      - "25565:25565"
+    environment:
+      TYPE: "PAPER"
+      VERSION: "1.20.6"
+      EULA: "TRUE"
+
+    volumes:
+      # attach the relative directory 'data' to the container's /data path
+      - ./data:/data
+      - ./world:/data/world
+      - ./../build/libs/hikabrain-1.0-SNAPSHOT.jar:/data/plugins/hikabrain-1.0-SNAPSHOT.jar

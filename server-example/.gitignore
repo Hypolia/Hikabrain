@@ -1,0 +1,43 @@
+# Server JAR files
+*.jar
+
+# World data (usually too large and changes frequently)
+data/world/
+data/world_nether/
+data/world_the_end/
+world/
+world_nether/
+world_the_end/
+
+# Server logs
+data/logs/
+logs/
+
+# Cache and temporary files
+data/cache/
+cache/
+
+# User data that changes frequently
+data/usercache.json
+data/banned-ips.json
+data/banned-players.json
+data/whitelist.json
+data/ops.json
+
+# Session and lock files
+data/session.lock
+world/session.lock
+
+# Version history
+data/version_history.json
+
+# Libraries downloaded by server
+data/libraries/
+data/versions/
+
+# Environment files (may contain sensitive data)
+data/.paper.env
+data/.rcon-cli.env
+
+# Manifest files that get regenerated
+data/.papermc-manifest.json
